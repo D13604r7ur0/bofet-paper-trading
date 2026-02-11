@@ -15,6 +15,7 @@ import { useState, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@/providers/WalletContext";
 import { SEND_GAS_CONTRACT_ADDRESS } from "@/constants/tokens";
+import { parseUnits } from "viem";
 
 const EIP712_DOMAIN = {
   name: "SendGas",
@@ -79,7 +80,7 @@ export default function useSendGas() {
         primaryType: "ClaimGasFor",
         message: {
           recipient: eoaAddress,
-          deadline: BigInt(deadline),
+          deadline: parseUnits(String(deadline), 0),
         },
       });
 

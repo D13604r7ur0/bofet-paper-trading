@@ -32,8 +32,8 @@ export default function useRebalanceToUsdc() {
     if (!safeAddress || !relayClient) {
       throw new Error("Trading session not initialized");
     }
-    const amount = rawUsdcBalance ?? BigInt(0);
-    if (amount <= BigInt(0)) return;
+    const amount = rawUsdcBalance ?? parseUnits("0", 6);
+    if (amount <= parseUnits("0", 6)) return;
 
     setIsRebalancing(true);
     setStatus("quoting");

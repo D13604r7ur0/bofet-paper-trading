@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";                                                                                                                                                                      
-  import { createPublicClient, http, formatUnits } from "viem";                                                                                                                                                            
+  import { createPublicClient, http, formatUnits, parseUnits } from "viem";                                                                                                                                                            
   import { baseSepolia } from "viem/chains";                                                                                                                                                                               
                                                                                                                                                                                                                            
   const PMT_CONTRACT = "0x8CC5e000199Ad0295491Fc4f6e8CC16e7108C270";                                                                                                                                                       
@@ -24,7 +24,7 @@ import { useQuery } from "@tanstack/react-query";
     return useQuery({
       queryKey: ["pmtBalance", address],
       queryFn: async () => {
-        if (!address) return { balance: 0, raw: BigInt(0) };
+        if (!address) return { balance: 0, raw: parseUnits("0", 18) };
 
         const raw = await publicClient.readContract({
           address: PMT_CONTRACT,

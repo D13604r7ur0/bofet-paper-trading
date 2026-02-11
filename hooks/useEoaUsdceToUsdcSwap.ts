@@ -8,7 +8,7 @@
 
 import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { encodeFunctionData, erc20Abi, maxUint256 } from "viem";
+import { encodeFunctionData, erc20Abi, maxUint160, maxUint256, parseUnits } from "viem";
 import { polygon } from "viem/chains";
 import { useWallet } from "@/providers/WalletContext";
 import usePolygonBalances from "@/hooks/usePolygonBalances";
@@ -28,8 +28,6 @@ import {
   permit2Abi,
 } from "@/constants/abis/uniswapV4";
 
-/** Max uint160 for Permit2 approve (same as swap_EOA MAX_UINT160). */
-const MAX_UINT160 = BigInt("0xffffffffffffffffffffffffffffffffffffffff");
 
 const WAIT_TIMEOUT_MS = 120_000; // 2 min per debug_swap_EOA.txt
 const PENDING_TX_POLL_MS = 8_000; // 8 s between checks (debug_swap_EOA.txt)
@@ -89,7 +87,7 @@ export default function useEoaUsdceToUsdcSwap() {
       setError(new Error("Wallet not connected"));
       return;
     }
-    if ((eoaRawUsdcBalance ?? BigInt(0)) <= BigInt(0)) {
+    if ((eoaRawUsdcBalance ?? parseUnits("0", 6)) <= parseUnits("0", 6)) {
       setError(new Error("No USDC.e in your wallet"));
       return;
     }
@@ -103,7 +101,7 @@ export default function useEoaUsdceToUsdcSwap() {
     setError(null);
 
     const publicRpc = getPublicPolygonClient();
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + DEADLINE_SEC);
+    const deadline = parseUnits(String(Math.floor(Date.now() / 1000) + DEADLINE_SEC), 0);
 
     try {
       // 0) Wait for no pending txs to avoid REPLACEMENT_UNDERPRICED / nonce issues (debug_swap_EOA.txt §1)
@@ -168,7 +166,7 @@ export default function useEoaUsdceToUsdcSwap() {
             args: [
               USDC_E_CONTRACT_ADDRESS,
               UNISWAP_V4_UNIVERSAL_ROUTER,
-              MAX_UINT160,
+              maxUint160,
               Number(deadline),
             ],
           }),
@@ -186,7 +184,7 @@ export default function useEoaUsdceToUsdcSwap() {
         functionName: "balanceOf",
         args: [eoaAddress as `0x${string}`],
       });
-      if (currentBalance <= BigInt(0)) {
+      if (currentBalance <= parseUnits("0", 6)) {
         throw new Error("USDC.e balance is zero or changed. Please try again.");
       }
       // Use min(initial amountIn, current balance) so we never exceed Permit2 allowance or current balance
@@ -196,7 +194,7 @@ export default function useEoaUsdceToUsdcSwap() {
       const { amountOut } = await getSwapQuote(amountToSwap, {
         publicClient: publicRpc,
       });
-      const minAmountOut = (amountOut * BigInt(10000 - SLIPPAGE_BPS)) / BigInt(10000);
+      const minAmountOut = (amountOut * parseUnits(String(10000 - SLIPPAGE_BPS), 4)) / parseUnits("1", 4);
 
       // 5) Build execute payload with Uniswap SDK (same as swap_EOA.ts) and execute Universal Router
       const payload = buildEoaUsdceToUsdcExecutePayload({
@@ -225,7 +223,7 @@ export default function useEoaUsdceToUsdcSwap() {
           args: [payload.commands, payload.inputs, deadline],
           account: eoaAddress as `0x${string}`,
         });
-        gasLimit = (estimated * BigInt(120)) / BigInt(100); // 20% buffer
+        gasLimit = (estimated * parseUnits("120", 0)) / parseUnits("100", 0); // 20% buffer
       } catch (estimateErr) {
         const msg = estimateErr instanceof Error ? estimateErr.message : String(estimateErr);
         throw new Error(`Swap simulation failed. ${msg}`);
@@ -265,6 +263,6 @@ export default function useEoaUsdceToUsdcSwap() {
     swapUsdceToUsdc,
     isSwapping,
     error,
-    eoaUsdcBalance: eoaRawUsdcBalance ?? BigInt(0),
+    eoaUsdcBalance: eoaRawUsdcBalance ?? parseUnits("0", 6),
   };
 }

@@ -26,7 +26,7 @@ import { useTrading } from "@/providers/TradingProvider";
 import { useWallet } from "@/providers/WalletContext";
 import Safe from "@safe-global/protocol-kit";
 import { MetaTransactionData, OperationType, SigningMethod } from "@safe-global/types-kit";
-import { encodeFunctionData, erc20Abi, maxUint160 } from "viem";
+import { encodeFunctionData, erc20Abi, maxUint160, parseUnits } from "viem";
 import { getPublicPolygonClient } from "@/utils/polygonGas";
 import getMagic from "@/lib/magic";
 import { POLYGON_RPC_URL } from "@/constants/api";
@@ -77,7 +77,7 @@ export default function useUsdceToUsdcSwap() {
         throw new Error("Trading session not initialized");
       }
 
-      if (amountIn <= BigInt(0)) {
+      if (amountIn <= parseUnits("0", 6)) {
         throw new Error("Amount must be greater than 0");
       }
 
@@ -145,7 +145,7 @@ export default function useUsdceToUsdcSwap() {
         console.log(`[UsdceToUsdcSwap] Quoted output: ${quotedOutput} USDC`);
 
         // Apply slippage tolerance (2%)
-        const minAmountOut = (quotedOutput * BigInt(10000 - SLIPPAGE_BPS)) / BigInt(10000);
+        const minAmountOut = (quotedOutput * parseUnits(String(10000 - SLIPPAGE_BPS), 4)) / parseUnits("1", 4);
         console.log(
           `[UsdceToUsdcSwap] Min amount out (with ${SLIPPAGE_BPS / 100}% slippage): ${minAmountOut} USDC`
         );
@@ -186,7 +186,7 @@ export default function useUsdceToUsdcSwap() {
         const executeData = encodeFunctionData({
           abi: universalRouterAbi,
           functionName: "execute",
-          args: [routePlanner.commands as `0x${string}`, [encodedActions as `0x${string}`], BigInt(deadline)],
+          args: [routePlanner.commands as `0x${string}`, [encodedActions as `0x${string}`], parseUnits(String(deadline), 0)],
         });
 
         // ================================================================

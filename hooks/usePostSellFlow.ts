@@ -27,7 +27,7 @@ import { useTrading } from "@/providers/TradingProvider";
 import { useWallet } from "@/providers/WalletContext";
 import Safe from "@safe-global/protocol-kit";
 import { MetaTransactionData, OperationType, SigningMethod } from "@safe-global/types-kit";
-import { encodeFunctionData, erc20Abi, maxUint160 } from "viem";
+import { encodeFunctionData, erc20Abi, maxUint160, parseUnits } from "viem";
 import { getPublicPolygonClient } from "@/utils/polygonGas";
 import getMagic from "@/lib/magic";
 import { POLYGON_RPC_URL } from "@/constants/api";
@@ -138,10 +138,10 @@ export default function usePostSellFlow() {
         setStep("swapping");
 
         // Calculate fee (1%)
-        const feeAmount = (usdceBalance * BigInt(FEE_BPS)) / BigInt(10000);
+        const feeAmount = (usdceBalance * parseUnits(String(FEE_BPS), 0)) / parseUnits("1", 4);
         const amountToSwap = usdceBalance - feeAmount;
 
-        if (amountToSwap <= BigInt(0)) {
+        if (amountToSwap <= parseUnits("0", 6)) {
           throw new Error("Amount to swap must be greater than 0 after fee collection");
         }
 
@@ -199,7 +199,7 @@ export default function usePostSellFlow() {
         console.log(`[PostSellFlow] Quoted output: ${quotedOutput} USDC`);
 
         // Apply slippage tolerance (2%)
-        const minAmountOut = (quotedOutput * BigInt(10000 - SLIPPAGE_BPS)) / BigInt(10000);
+        const minAmountOut = (quotedOutput * parseUnits(String(10000 - SLIPPAGE_BPS), 4)) / parseUnits("1", 4);
         console.log(`[PostSellFlow] Min amount out (with ${SLIPPAGE_BPS / 100}% slippage): ${minAmountOut} USDC`);
 
         // ================================================================
@@ -242,7 +242,7 @@ export default function usePostSellFlow() {
         const executeData = encodeFunctionData({
           abi: universalRouterAbi,
           functionName: "execute",
-          args: [routePlanner.commands as `0x${string}`, [encodedActions as `0x${string}`], BigInt(deadline)],
+          args: [routePlanner.commands as `0x${string}`, [encodedActions as `0x${string}`], parseUnits(String(deadline), 0)],
         });
 
         // ================================================================

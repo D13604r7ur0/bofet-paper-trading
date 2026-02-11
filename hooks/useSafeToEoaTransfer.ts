@@ -8,7 +8,7 @@
 
 import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { encodeFunctionData, erc20Abi } from "viem";
+import { encodeFunctionData, erc20Abi, parseUnits } from "viem";
 import Safe from "@safe-global/protocol-kit";
 import type { MetaTransactionData } from "@safe-global/types-kit";
 import { useTrading } from "@/providers/TradingProvider";
@@ -99,9 +99,9 @@ export default function useSafeToEoaTransfer() {
       if (!safeAddress || !eoaAddress) {
         throw new Error("Trading session not initialized");
       }
-      const balance = rawUsdcBalance ?? BigInt(0);
+      const balance = rawUsdcBalance ?? parseUnits("0", 6);
       const sendAmount = amount ?? balance;
-      if (sendAmount <= BigInt(0)) {
+      if (sendAmount <= parseUnits("0", 6)) {
         throw new Error("No USDC.e balance in Safe to send");
       }
 
@@ -210,6 +210,6 @@ export default function useSafeToEoaTransfer() {
     transferSafeUsdceToEoa,
     isTransferring,
     error,
-    safeUsdcBalance: rawUsdcBalance ?? BigInt(0),
+    safeUsdcBalance: rawUsdcBalance ?? parseUnits("0", 6),
   };
 }

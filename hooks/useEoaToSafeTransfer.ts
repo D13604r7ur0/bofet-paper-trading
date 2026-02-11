@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { erc20Abi, parseUnits } from "viem";
 import { polygon } from "viem/chains";
 import { useWallet } from "@/providers/WalletContext";
 import { useTrading } from "@/providers/TradingProvider";
@@ -12,7 +13,6 @@ import {
 } from "@/utils/polygonGas";
 import { formatUsdcAmount } from "@/utils/bridge";
 import { USDC_E_CONTRACT_ADDRESS } from "@/constants/tokens";
-import { erc20Abi } from "viem";
 
 const MAGIC_RATE_LIMIT_RETRY_MS = 15_000;
 
@@ -71,7 +71,7 @@ export default function useEoaToSafeTransfer() {
         const publicRpc = getPublicPolygonClient();
 
         // Retry reading balance until it's available (bridge transaction confirmed)
-        let balance = BigInt(0);
+        let balance = parseUnits("0", 6);
         const maxReadAttempts = 10;
         for (let attempt = 0; attempt < maxReadAttempts; attempt++) {
           balance = await publicRpc.readContract({
@@ -86,7 +86,7 @@ export default function useEoaToSafeTransfer() {
             actual: formatUsdcAmount(balance),
           });
 
-          if (balance > BigInt(0)) {
+          if (balance > parseUnits("0", 6)) {
             console.log("✅ [useEoaToSafeTransfer] Balance encontrado!");
             break;
           }
@@ -98,7 +98,7 @@ export default function useEoaToSafeTransfer() {
           }
         }
 
-        if (balance === BigInt(0)) {
+        if (balance === parseUnits("0", 6)) {
           throw new Error("Bridge conversion completed but USDC.e not yet visible in EOA after multiple retries. Please try again in a moment.");
         }
 
@@ -138,7 +138,7 @@ export default function useEoaToSafeTransfer() {
 
             // After first attempt, use fixed gas limit to skip estimation
             if (attempt > 0) {
-              txParams.gas = BigInt(100000); // ERC20 transfer typically uses ~65k gas
+              txParams.gas = parseUnits("100000", 0); // ERC20 transfer typically uses ~65k gas
               console.log("🔧 [useEoaToSafeTransfer] Usando gas fijo (100k) para skip estimateGas en retry");
             }
 

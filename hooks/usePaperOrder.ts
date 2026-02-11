@@ -83,7 +83,8 @@
           const effectivePrice = params.price ?? params.amount / params.size;
 
           if (params.side === "BUY") {
-            const cost = params.size * effectivePrice;
+            const costRaw = params.size * effectivePrice;
+            const cost = Math.round(costRaw * 1e6) / 1e6;
 
             if (cost > availableBalance) {
               const err = new Error(
@@ -96,6 +97,19 @@
             // 1. Transferir PMT on-chain (user → vault)
             setStatus("transferring-pmt");
             setProgressMessage("Transfiriendo PMT...");
+            // #region agent log
+            fetch("http://127.0.0.1:7256/ingest/f44b4f33-6007-4135-82ba-ef90eef410ef", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                location: "usePaperOrder.ts:before-transferToVault",
+                message: "paper order cost and available balance",
+                data: { cost, availableBalance, sufficient: availableBalance >= cost },
+                timestamp: Date.now(),
+                hypothesisId: "H1",
+              }),
+            }).catch(() => {});
+            // #endregion
             const txHash = await transferToVault(cost);
 
             // 2. Guardar posición en Supabase

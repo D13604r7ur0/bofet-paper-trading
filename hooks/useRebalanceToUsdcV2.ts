@@ -12,7 +12,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { createPublicClient, http, parseUnits } from "viem";
+import { createPublicClient, http, parseGwei, parseUnits } from "viem";
 import { polygon } from "viem/chains";
 import { useQueryClient } from "@tanstack/react-query";
 import Safe from "@safe-global/protocol-kit";
@@ -67,10 +67,10 @@ async function getExecutionFeeOptions(client: {
       blockCount: 1,
       rewardPercentiles: [25, 75],
     });
-    const baseFee = feeHistory.baseFeePerGas[feeHistory.baseFeePerGas.length - 1] ?? BigInt(0);
+    const baseFee = feeHistory.baseFeePerGas[feeHistory.baseFeePerGas.length - 1] ?? parseUnits("0", 0);
     const reward = feeHistory.reward?.[0];
     const priorityFee =
-      (reward && (reward[1] ?? reward[0])) ?? BigInt(30_000_000_000); // 30 gwei fallback
+      (reward && (reward[1] ?? reward[0])) ?? parseGwei("30"); // 30 gwei fallback
     const maxFeePerGas = baseFee + priorityFee;
     return {
       maxFeePerGas: maxFeePerGas.toString(),
@@ -99,8 +99,8 @@ export default function useRebalanceToUsdcV2() {
     if (!safeAddress || !eoaAddress) {
       throw new Error("Trading session not initialized");
     }
-    const amount = rawUsdcBalance ?? BigInt(0);
-    if (amount <= BigInt(0)) return;
+    const amount = rawUsdcBalance ?? parseUnits("0", 6);
+    if (amount <= parseUnits("0", 6)) return;
 
     const magic = typeof window !== "undefined" ? getMagic() : null;
     const provider =

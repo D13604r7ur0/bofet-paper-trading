@@ -30,7 +30,7 @@ import useBridgeDeposit from "@/hooks/useBridgeDeposit";
 import { executeBridgeFlow } from "@/lib/bridgeOperations";
 import Safe from "@safe-global/protocol-kit";
 import { MetaTransactionData, OperationType, SigningMethod } from "@safe-global/types-kit";
-import { encodeFunctionData, erc20Abi, formatUnits, parseUnits } from "viem";
+import { encodeFunctionData, erc20Abi, formatUnits, maxUint256, parseUnits } from "viem";
 import { getPublicPolygonClient } from "@/utils/polygonGas";
 import getMagic from "@/lib/magic";
 import { POLYGON_RPC_URL } from "@/constants/api";
@@ -239,7 +239,7 @@ export default function useFullConversion() {
                 functionName: "approve",
                 args: [
                   BUYGAS_CONTRACT_ADDRESS as `0x${string}`,
-                  BigInt(2 ** 256 - 1), // MAX_UINT256
+                  maxUint256,
                 ],
               }),
               operation: OperationType.Call,
@@ -330,7 +330,7 @@ export default function useFullConversion() {
 
           // Calculate how much POL to send to EOA
           const polEoaPercentage = 100 - polSafePercentage;
-          polSentToEoa = (polBalanceAfterBuyGas * BigInt(Math.floor(polEoaPercentage * 100))) / BigInt(10000);
+          polSentToEoa = (polBalanceAfterBuyGas * parseUnits(String(Math.floor(polEoaPercentage * 100)), 2)) / parseUnits("1", 4);
 
           // Create Safe transaction to send POL to EOA
           // POL is the native token, so we just send value without data

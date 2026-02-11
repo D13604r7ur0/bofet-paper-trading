@@ -24,7 +24,7 @@ import { useTrading } from "@/providers/TradingProvider";
 import { useWallet } from "@/providers/WalletContext";
 import Safe from "@safe-global/protocol-kit";
 import { MetaTransactionData, OperationType, SigningMethod } from "@safe-global/types-kit";
-import { encodeFunctionData, erc20Abi, formatUnits, maxUint256 } from "viem";
+import { encodeFunctionData, erc20Abi, formatUnits, maxUint256, parseUnits } from "viem";
 import { getPublicPolygonClient } from "@/utils/polygonGas";
 import getMagic from "@/lib/magic";
 import { POLYGON_RPC_URL } from "@/constants/api";
@@ -163,7 +163,7 @@ export default function useNewFullConversion() {
             primaryType: "ClaimGasFor",
             message: {
               recipient: eoaAddress,
-              deadline: BigInt(deadline),
+              deadline: parseUnits(String(deadline), 0),
             },
           });
 

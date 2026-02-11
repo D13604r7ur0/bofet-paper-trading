@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createWalletClient, createPublicClient, http, parseUnits, parseEther } from "viem";
+import { createWalletClient, createPublicClient, http, parseUnits, parseEther, hexToBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { baseSepolia } from "viem/chains";
 import { supabase } from "@/lib/supabase";
@@ -75,12 +75,37 @@ export async function POST(req: NextRequest) {
         }
 
         // --- Faucet config ---
-        const privateKey = process.env.PMT_FAUCET_PRIVATE_KEY;
-        if (!privateKey) {
+        const rawKey = process.env.PMT_FAUCET_PRIVATE_KEY;
+        if (!rawKey) {
             return NextResponse.json(
                 { error: "Faucet not configured" },
                 { status: 500 }
             );
+        }
+
+        // Normalize: trim whitespace, ensure 0x prefix
+        let privateKey = rawKey.trim();
+        if (!privateKey.startsWith("0x")) {
+            privateKey = `0x${privateKey}`;
+        }
+
+        if (process.env.NODE_ENV === "development") {
+            console.log("[claim-pmt] PMT_FAUCET_PRIVATE_KEY debug:", {
+                length: privateKey.length,
+                has0x: privateKey.startsWith("0x"),
+                first10: privateKey.slice(0, 10) + "...",
+                repr: JSON.stringify(privateKey.slice(0, 12) + "..."),
+            });
+        }
+
+        try {
+            const bytes = hexToBytes(privateKey as `0x${string}`);
+            if (bytes.length !== 32) {
+                throw new Error(`Private key must be 32 bytes (64 hex chars), got ${bytes.length}`);
+            }
+        } catch (e) {
+            console.error("[claim-pmt] Invalid PMT_FAUCET_PRIVATE_KEY format:", e);
+            throw e;
         }
 
         const account = privateKeyToAccount(privateKey as `0x${string}`);

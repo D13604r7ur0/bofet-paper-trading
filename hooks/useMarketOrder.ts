@@ -21,7 +21,7 @@ import usePostSellFlow from "@/hooks/usePostSellFlow";
 import useClobOrder, { type OrderParams } from "@/hooks/useClobOrder";
 import { parseUsdcAmount, formatUsdcAmount } from "@/utils/bridge";
 import { USDC_E_CONTRACT_ADDRESS } from "@/constants/tokens";
-import { erc20Abi } from "viem";
+import { erc20Abi, parseUnits } from "viem";
 import { getPublicPolygonClient } from "@/utils/polygonGas";
 import { Side } from "@polymarket/clob-client";
 
@@ -88,9 +88,9 @@ export default function useMarketOrder() {
       setError(null);
       setSellMessage("");
 
-      const rawUsdc = rawUsdcBalance ?? BigInt(0);
-      const rawNative = rawNativeUsdcBalance ?? BigInt(0);
       const requiredUsdce = parseUsdcAmount(params.amount);
+      const rawUsdc = rawUsdcBalance ?? parseUnits("0", 6);
+      const rawNative = rawNativeUsdcBalance ?? parseUnits("0", 6);
 
       try {
         // ================================================================
