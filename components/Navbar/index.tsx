@@ -29,7 +29,6 @@ import PayoutModal from "@/components/PayoutModal";
 import SearchModal from "@/components/shared/SearchModal";
 import ConnectWalletUI from "@/components/ConnectWalletUI";
 import type { SearchResult, SearchResponse } from "@/types/search";
-import ClaimPMTButton from "@/components/Navbar/ClaimPMTButton";
 import PMTBalance from "@/components/Navbar/PMTBalance";
 
 const showRebalanceButton =
@@ -551,7 +550,6 @@ export default function Navbar(props: NavbarProps = {}) {
                     {/* Balance, rebalance, profile at end */}
                     <div className="flex justify-end items-center gap-2 flex-1 min-w-0">
                       {/* Report bug - soft red, logged-in only; at start of this row */}
-                      {eoaAddress && <ClaimPMTButton address={eoaAddress} />}
                       {eoaAddress && (
                         <Link
                           href={`/${locale || "es"}/report-bug`}

@@ -7,6 +7,7 @@ import TradingProvider from "./TradingProvider";
 import { DictionaryProvider } from "./dictionary-provider";
 import { NavigationLoadingProvider } from "./NavigationLoadingProvider";
 import { PaymentModalProvider } from "./PaymentModalContext";
+import { CurrencyProvider } from "./CurrencyContext";
 import NavigationLoader from "@/components/shared/NavigationLoader";
 import HeyoEmbedScript from "@/components/shared/HeyoEmbedScript";
 import ToastProvider from "./ToastProvider";
@@ -19,13 +20,15 @@ export default function Providers({ children }: { children: ReactNode }) {
         <WalletProvider>
           <ToastProvider>
             <QueryProvider>
-              <TradingProvider>
-                <PaymentModalProvider>
-                  <NavigationLoader />
-                  <HeyoEmbedScript />
-                  {children}
-                </PaymentModalProvider>
-              </TradingProvider>
+              <CurrencyProvider>
+                <TradingProvider>
+                  <PaymentModalProvider>
+                    <NavigationLoader />
+                    <HeyoEmbedScript />
+                    {children}
+                  </PaymentModalProvider>
+                </TradingProvider>
+              </CurrencyProvider>
             </QueryProvider>
           </ToastProvider>
         </WalletProvider>

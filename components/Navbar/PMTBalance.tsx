@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Coins, ArrowDownToLine, ArrowUpToLine } from "lucide-react";
+import { ArrowDownToLine, ArrowUpToLine } from "lucide-react";
 import { useWallet } from "@/providers/WalletContext";
+import { useCurrency } from "@/providers/CurrencyContext";
+import type { DisplayCurrency } from "@/utils/currencyDisplay";
+import { DISPLAY_CURRENCY_OPTIONS } from "@/constants/currency";
 import usePMTBalance from "@/hooks/usePMTBalance";
 import usePaperPositions from "@/hooks/usePaperPositions";
 
+/** PMT = 1 USD. Balance component with currency selector (clone of magic-DEV PortfolioCashBalance). */
 export default function PMTBalance() {
     const { eoaAddress } = useWallet();
+    const { currency, setCurrency, formatUsd } = useCurrency();
     const { data, isLoading: isLoadingBalance } = usePMTBalance(eoaAddress);
     const { openPositions, isLoading: isLoadingPositions } = usePaperPositions(eoaAddress);
 
@@ -57,64 +62,73 @@ export default function PMTBalance() {
 
     const isLoading = isLoadingBalance || isLoadingPositions;
     const onChainBalance = data?.balance ?? 0;
-    // Disponible = lo que tiene en wallet (ya descontadas las compras on-chain)
+    // Disponible = wallet balance (1 PMT = 1 USD)
     const disponible = onChainBalance;
-    // Balance = disponible + valor actual de posiciones abiertas (a precio de mercado)
+    // Balance = disponible + current value of open positions (1 PMT = 1 USD)
     const totalBalance = onChainBalance + currentValue;
 
-      return (
-          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-              {isLoading ? (
-                  <span className="text-sm text-gray-400">Loading...</span>
-              ) : (
-                  <>
-                      {/* Balance PMT total */}
-                      <div className="flex flex-col items-end">
-                          <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">
-                              Balance
-                          </span>
-                          <span className="text-sm sm:text-base font-semibold text-gray-900">
-                              <Coins className="w-3.5 h-3.5 inline mr-1" />
-                              {totalBalance.toFixed(2)} PMT
-                          </span>
-                      </div>
+    return (
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+            {isLoading ? (
+                <span className="text-sm text-gray-400">Loading...</span>
+            ) : (
+                <>
+                    {/* Balance (PMT = USD, shown in selected currency) */}
+                    <div className="flex flex-col items-end">
+                        <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">
+                            Balance
+                        </span>
+                        <span className="text-sm sm:text-base font-semibold text-gray-900">
+                            {formatUsd(totalBalance)}
+                        </span>
+                    </div>
 
-                      {/* PMT Disponible (total - locked en posiciones) */}
-                      <div className="flex flex-col items-end">
-                          <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">
-                              Disponible
-                          </span>
-                          <span className="text-sm sm:text-base font-semibold text-green-600">
-                              <Coins className="w-3.5 h-3.5 inline mr-1" />
-                              {disponible.toFixed(2)} PMT
-                          </span>
-                      </div>
+                    {/* Disponible (PMT = USD, shown in selected currency) */}
+                    <div className="flex flex-col items-end">
+                        <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">
+                            Disponible
+                        </span>
+                        <span className="text-sm sm:text-base font-semibold text-green-600">
+                            {formatUsd(disponible)}
+                        </span>
+                    </div>
 
-                      {/* Botones Depositar y Retirar DISABLED */}
-                      <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-gray-100">
-                          {/* Depositar - Disabled */}
-                          <button
-                              disabled
-                              title="Depositar (próximamente)"
-                              className="flex-shrink-0 p-1.5 sm:px-2 sm:py-1.5 md:px-3 md:py-1.5 text-xs font-medium text-gray-400 flex items-center gap-1 md:gap-1.5 border-r border-gray-300
-  cursor-not-allowed opacity-50"
-                          >
-                              <ArrowDownToLine className="w-3.5 h-3.5" />
-                              <span className="hidden sm:inline">Depositar</span>
-                          </button>
+                    {/* Currency selector (USD / MXN / EUR) */}
+                    <select
+                        value={currency}
+                        onChange={(e) => setCurrency(e.target.value as DisplayCurrency)}
+                        className="select select-bordered select-sm text-[10px] sm:text-xs h-7 min-h-7 py-0 pl-1 pr-4 w-fit min-w-0 shrink bg-gray-50 border-gray-300 text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                        aria-label="Currency"
+                    >
+                        {DISPLAY_CURRENCY_OPTIONS.map(({ value, label }) => (
+                            <option key={value} value={value}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
 
-                          {/* Retirar - Disabled */}
-                          <button
-                              disabled
-                              title="Retirar (próximamente)"
-                              className="flex-shrink-0 p-1.5 sm:px-2 sm:py-1.5 md:px-3 md:py-1.5 text-xs font-medium text-gray-400 flex items-center gap-1 md:gap-1.5 cursor-not-allowed opacity-50"
-                          >
-                              <ArrowUpToLine className="w-3.5 h-3.5" />
-                              <span className="hidden md:inline">Retirar</span>
-                          </button>
-                      </div>
-                  </>
-              )}
-          </div>
-      );
-  }
+                    {/* Depositar / Retirar (visual only, no functionality) */}
+                    <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-gray-100">
+                        <button
+                            type="button"
+                            title="Depositar"
+                            className="flex-shrink-0 p-1.5 sm:px-2 sm:py-1.5 md:px-3 md:py-1.5 text-xs font-medium text-gray-700 flex items-center gap-1 md:gap-1.5 border-r border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
+                        >
+                            <ArrowDownToLine className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Depositar</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            title="Retirar"
+                            className="flex-shrink-0 p-1.5 sm:px-2 sm:py-1.5 md:px-3 md:py-1.5 text-xs font-medium text-gray-700 flex items-center gap-1 md:gap-1.5 hover:bg-gray-200 transition-colors cursor-pointer"
+                        >
+                            <ArrowUpToLine className="w-3.5 h-3.5" />
+                            <span className="hidden md:inline">Retirar</span>
+                        </button>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}

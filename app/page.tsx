@@ -8,7 +8,6 @@ import GeoBlockedBanner from "@/components/GeoBlockedBanner";
 import PreviewMarketCards from "@/components/Trading/Markets/PreviewMarketCards";
 import InitializeGuide from "@/components/InitializeGuide";
 import { OnboardingWelcome } from "@/components/Onboarding";
-import { HelpBanner } from "@/components/HelpBanner";
 import Footer from "@/components/Footer";
 import { useState, useEffect, Suspense } from "react";
 import { useDictionary } from "@/providers/dictionary-provider";
@@ -128,8 +127,6 @@ function HomeContent() {
           onTradingTabChange={setActiveTradingTab} 
         />
       )}
-      <HelpBanner />
-
       {showOnboarding && (
         <OnboardingWelcome onComplete={handleOnboardingComplete} />
       )}

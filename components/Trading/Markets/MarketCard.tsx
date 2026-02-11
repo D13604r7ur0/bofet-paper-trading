@@ -89,42 +89,42 @@ export default function MarketCard({
   };
 
   return (
-    <div onClick={handleCardClick} className="card card-border bg-base-100 transition-all cursor-pointer group">
-      <div className="card-body p-4">
-        {/* Top section: Image + Title + Radial Progress */}
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            {market.icon && (
-              <img
-                src={market.icon}
-                alt={market.question}
-                className="w-12 h-12 rounded-lg object-cover shrink-0"
-              />
+    <div onClick={handleCardClick} className="card card-border bg-base-100 transition-all cursor-pointer group block overflow-hidden">
+      <div className="card-body pt-5 px-4 pb-3">
+        {/* Fixed-height question block: image/odds hidden on hover, question expands (same as magic-DEV) */}
+        <div className="flex flex-col h-[5rem] min-h-[5rem] mt-1 mb-2">
+          <div className="flex items-start justify-between gap-3 group-hover:gap-0 flex-1 min-h-0 min-w-0 h-12 group-hover:h-full transition-all duration-200">
+            <div className="flex items-start gap-3 group-hover:gap-0 flex-1 min-w-0 min-h-0 overflow-hidden">
+              {market.icon && (
+                <img
+                  src={market.icon}
+                  alt=""
+                  className="w-12 h-12 rounded-lg object-cover shrink-0 transition-all duration-200 group-hover:opacity-0 group-hover:w-0 group-hover:h-0 group-hover:min-w-0 group-hover:shrink group-hover:overflow-hidden group-hover:invisible"
+                  aria-hidden
+                />
+              )}
+              <div className="w-full min-w-0 flex-1 min-h-0 overflow-hidden">
+                <h2 className="card-title text-base leading-tight group-hover:text-primary transition-colors text-left line-clamp-2 group-hover:line-clamp-5 group-hover:text-sm group-hover:leading-snug break-words">
+                  {market.question}
+                </h2>
+              </div>
+            </div>
+            {!isClosed && (
+              <div
+                className="radial-progress text-[#00C805] shrink-0 transition-all duration-200 group-hover:opacity-0 group-hover:w-0 group-hover:min-w-0 group-hover:overflow-hidden group-hover:invisible"
+                style={{ "--value": chance, "--size": "3rem", "--thickness": "3px" } as React.CSSProperties}
+                role="progressbar"
+                aria-valuenow={chance}
+              >
+                <span className="text-[10px] font-bold">{chance}%</span>
+              </div>
             )}
-            <div
-              className="tooltip tooltip-bottom market-card-tooltip w-full min-w-0 flex-1"
-              data-tip={market.question}
-            >
-              <h2 className="card-title text-base leading-tight group-hover:text-primary transition-colors line-clamp-2 text-left">
-                {market.question}
-              </h2>
-            </div>
           </div>
-          {!isClosed && (
-            <div
-              className="radial-progress text-[#00C805] shrink-0"
-              style={{ "--value": chance, "--size": "3rem", "--thickness": "3px" } as React.CSSProperties}
-              role="progressbar"
-              aria-valuenow={chance}
-            >
-              <span className="text-[10px] font-bold">{chance}%</span>
-            </div>
-          )}
         </div>
 
-        {/* Middle section: Outcome badges (Yes/No style) */}
+        {/* Outcome badges (Yes/No) — always visible */}
         {displayOutcomes.length > 0 && (
-          <div className="card-actions grid grid-cols-2 gap-2 mb-3">
+          <div className="card-actions grid grid-cols-2 gap-2 mb-2">
             {displayOutcomes.map((outcome: string, idx: number) => {
               const tokenId = displayTokenIds[idx] || "";
               const price = displayPrices[idx] || 0;
@@ -162,9 +162,9 @@ export default function MarketCard({
           </div>
         )}
 
-        {/* Bottom section: Volume + Share */}
-        <div className="flex items-center justify-between text-xs text-base-content/60">
-          <div className="flex items-center gap-1">
+        {/* Volume + Share at end of card; volume hidden on hover (space preserved) */}
+        <div className="flex items-center justify-between text-xs text-base-content/60 h-5 shrink-0">
+          <div className="flex items-center gap-1 duration-200">
             <span>{formatVolume(volumeUSD)} {dict.market.volume}</span>
             <svg
               className="h-4 w-4"
@@ -177,7 +177,7 @@ export default function MarketCard({
             </svg>
           </div>
           <button
-            className="btn btn-ghost btn-circle btn-xs"
+            className="btn btn-ghost btn-circle btn-xs shrink-0"
             onClick={handleShareClick}
             aria-label={dict.marketDetail?.header?.share ?? "Share"}
           >

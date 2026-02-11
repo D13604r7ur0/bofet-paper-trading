@@ -16,6 +16,7 @@ import FundSafeSection from "@/components/FundSafeSection";
 import TradingSession from "@/components/TradingSession";
 import { useDictionary } from "@/providers/dictionary-provider";
 import ConvertUsdceSection from "@/components/Profile/ConvertUsdceSection";
+import ClaimPMTButton from "@/components/Navbar/ClaimPMTButton";
 import UserAvatar from "@/components/Avatar/UserAvatar";
 import AvatarStyleSelector from "@/components/Avatar/AvatarStyleSelector";
 import useAvatarStyle from "@/hooks/useAvatarStyle";
@@ -402,6 +403,19 @@ export default function Profile() {
             </div>
           </div>
         )} */}
+      </div>
+
+      {/* Recibir PMT / Paper trading tokens */}
+      <div className="bg-white p-6 rounded-[28px] border border-slate-200 mb-8">
+        <h2 className="text-lg font-bold text-slate-900 mb-2">
+          {locale === "es" ? "Recibir PMT" : "Paper trading tokens"}
+        </h2>
+        <p className="text-sm text-slate-500 mb-4">
+          {locale === "es"
+            ? "Recibe 10 PMT para practicar paper trading. Los tokens son de prueba en Base Sepolia y no tienen valor real."
+            : "Receive 10 PMT to practice paper trading. Tokens are for testing on Base Sepolia and have no real value."}
+        </p>
+        <ClaimPMTButton address={eoaAddress!} />
       </div>
 
       {/* [DEV] EOA Private Key - only in development */}
