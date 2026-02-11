@@ -8,6 +8,7 @@ import { useDictionary } from "@/providers/dictionary-provider";
 import { useNavigationLoading } from "@/providers/NavigationLoadingProvider";
 import HowItWorksModal from "@/components/HowItWorksModal";
 
+
 export default function NavbarPreview() {
   const { connect } = useWallet();
   const { dict, locale } = useDictionary();

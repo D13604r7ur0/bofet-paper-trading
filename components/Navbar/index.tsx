@@ -29,6 +29,8 @@ import PayoutModal from "@/components/PayoutModal";
 import SearchModal from "@/components/shared/SearchModal";
 import ConnectWalletUI from "@/components/ConnectWalletUI";
 import type { SearchResult, SearchResponse } from "@/types/search";
+import ClaimPMTButton from "@/components/Navbar/ClaimPMTButton";
+import PMTBalance from "@/components/Navbar/PMTBalance";
 
 const showRebalanceButton =
   process.env.NODE_ENV === "development" ||
@@ -204,7 +206,7 @@ export default function Navbar(props: NavbarProps = {}) {
 
   const handleConvertToUsdceClick = async () => {
     const amount = eoaRawNativeUsdcBalance ?? BigInt(0);
-    
+
     if (amount < minBridgeAmount) return;
     try {
       await convertUsdcToUsdce(amount);
@@ -546,25 +548,26 @@ export default function Navbar(props: NavbarProps = {}) {
                         aria-label={dict.trading?.tabs?.positions ?? "Mis Posiciones"}
                         className="flex-shrink-0 p-1.5 sm:px-2 sm:py-1.5 md:px-3 md:py-1.5 text-xs font-medium hover:bg-gray-200 text-gray-900 transition-all duration-200 flex items-center gap-1 md:gap-1.5 cursor-pointer"
                       >
-                      
+
                         <span>{dict.trading?.tabs?.positions ?? "Mis Posiciones"}</span>
                       </Link>
                     </div>
                     {/* Balance, rebalance, profile at end */}
                     <div className="flex justify-end items-center gap-2 flex-1 min-w-0">
-                    {/* Report bug - soft red, logged-in only; at start of this row */}
-                    {eoaAddress && (
-                      <Link
-                        href={`/${locale || "es"}/report-bug`}
-                        className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-300 transition-colors shrink-0"
-                        aria-label={(dict as { reportBug?: { title: string } }).reportBug?.title ?? "Reportar un error"}
-                        title={(dict as { reportBug?: { title: string } }).reportBug?.title ?? "Reportar un error"}
-                      >
-                        <Bug className="w-4 h-4 sm:w-4 sm:h-4" />
-                      </Link>
-                    )}
-                    {/* DEV: Safe Balances Display - COMMENTED OUT */}
-                    {/* {showRebalanceButton && safeAddress && (
+                      {/* Report bug - soft red, logged-in only; at start of this row */}
+                      {eoaAddress && <ClaimPMTButton address={eoaAddress} />}
+                      {eoaAddress && (
+                        <Link
+                          href={`/${locale || "es"}/report-bug`}
+                          className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-300 transition-colors shrink-0"
+                          aria-label={(dict as { reportBug?: { title: string } }).reportBug?.title ?? "Reportar un error"}
+                          title={(dict as { reportBug?: { title: string } }).reportBug?.title ?? "Reportar un error"}
+                        >
+                          <Bug className="w-4 h-4 sm:w-4 sm:h-4" />
+                        </Link>
+                      )}
+                      {/* DEV: Safe Balances Display - COMMENTED OUT */}
+                      {/* {showRebalanceButton && safeAddress && (
                       <div className="flex items-center gap-1.5 px-2 py-1 bg-orange-50 border border-orange-200 rounded-md text-xs">
                         <span className="text-orange-800 font-semibold">DEV Safe:</span>
                         <span className="text-orange-700">
@@ -576,11 +579,11 @@ export default function Navbar(props: NavbarProps = {}) {
                         </span>
                       </div>
                     )} */}
-                    {/* Convert EOA native USDC → USDC.e (stays on EOA); Send EOA USDC.e → Safe */}
-                    {showRebalanceButton &&
-                      eoaAddress && (
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {/* DEV: Transfer POL from Safe to EOA - commented out
+                      {/* Convert EOA native USDC → USDC.e (stays on EOA); Send EOA USDC.e → Safe */}
+                      {showRebalanceButton &&
+                        eoaAddress && (
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {/* DEV: Transfer POL from Safe to EOA - commented out
                           {safeAddress && (
                             <div className="flex items-center gap-1">
                               <label className="input input-bordered input-sm flex items-center gap-1 w-32">
@@ -619,13 +622,13 @@ export default function Navbar(props: NavbarProps = {}) {
                             </div>
                           )}
                           */}
-                          {polTransferError && (
-                            <span className="text-xs text-red-600 max-w-35 truncate" title={polTransferError.message}>
-                              {polTransferError.message}
-                            </span>
-                          )}
-                          {/* TEMPORARILY DISABLED - Buy USDC.e button */}
-                          {/* {safeAddress && (
+                            {polTransferError && (
+                              <span className="text-xs text-red-600 max-w-35 truncate" title={polTransferError.message}>
+                                {polTransferError.message}
+                              </span>
+                            )}
+                            {/* TEMPORARILY DISABLED - Buy USDC.e button */}
+                            {/* {safeAddress && (
                             <div className="flex items-center gap-1">
                               <label className="input input-bordered input-sm flex items-center gap-1 w-36">
                                 <input
@@ -667,8 +670,8 @@ export default function Navbar(props: NavbarProps = {}) {
                               {usdcToUsdceError.message}
                             </span>
                           )} */}
-                          {/* TEMPORARILY DISABLED - Claim Gas button */}
-                          {/* <button
+                            {/* TEMPORARILY DISABLED - Claim Gas button */}
+                            {/* <button
                             type="button"
                             onClick={handleClaimGasClick}
                             disabled={isClaiming || hasClaimed || isCheckingClaimed}
@@ -693,8 +696,8 @@ export default function Navbar(props: NavbarProps = {}) {
                               {sendGasError.message}
                             </span>
                           )} */}
-                          {/* TEMPORARILY DISABLED - Convert to USDC.e button */}
-                          {/* <button
+                            {/* TEMPORARILY DISABLED - Convert to USDC.e button */}
+                            {/* <button
                             type="button"
                             onClick={handleConvertToUsdceClick}
                             disabled={isConverting || (eoaRawNativeUsdcBalance ?? BigInt(0)) < minBridgeAmount}
@@ -717,8 +720,8 @@ export default function Navbar(props: NavbarProps = {}) {
                               Need $2+ native USDC
                             </span>
                           )} */}
-                          {/* TEMPORARILY DISABLED - Swap to USDC button */}
-                          {/* <button
+                            {/* TEMPORARILY DISABLED - Swap to USDC button */}
+                            {/* <button
                             type="button"
                             onClick={handleSwapUsdceToUsdcClick}
                             disabled={isSwapping || (eoaRawUsdcBalance ?? BigInt(0)) <= BigInt(0)}
@@ -736,8 +739,8 @@ export default function Navbar(props: NavbarProps = {}) {
                           >
                             {isSwapping ? ((dict.navbar as { swapToUsdcSending?: string })?.swapToUsdcSending ?? "Swapping...") : ((dict.navbar as { swapToUsdc?: string })?.swapToUsdc ?? "Swap to USDC")}
                           </button> */}
-                          {/* TEMPORARILY DISABLED - Send USDC.e to Safe button */}
-                          {/* {safeAddress && (
+                            {/* TEMPORARILY DISABLED - Send USDC.e to Safe button */}
+                            {/* {safeAddress && (
                             <button
                               type="button"
                               onClick={handleSendUsdceToSafeClick}
@@ -757,8 +760,8 @@ export default function Navbar(props: NavbarProps = {}) {
                               {isTransferring ? "Sending..." : "Send USDC.e to Safe"}
                             </button>
                           )} */}
-                          {/* TEMPORARILY DISABLED - Withdraw to wallet button */}
-                          {/* {safeAddress && (
+                            {/* TEMPORARILY DISABLED - Withdraw to wallet button */}
+                            {/* {safeAddress && (
                             <button
                               type="button"
                               onClick={handleWithdrawSafeToEoaClick}
@@ -778,8 +781,8 @@ export default function Navbar(props: NavbarProps = {}) {
                               {isWithdrawingToEoa ? "Withdrawing..." : "Withdraw to wallet"}
                             </button>
                           )} */}
-                          {/* TEMPORARILY DISABLED - Error messages for disabled buttons */}
-                          {/* {convertError && (
+                            {/* TEMPORARILY DISABLED - Error messages for disabled buttons */}
+                            {/* {convertError && (
                             <>
                               <span className="text-xs text-red-600 max-w-35 truncate" title={convertError.message}>
                                 {convertError.message}
@@ -807,13 +810,14 @@ export default function Navbar(props: NavbarProps = {}) {
                               </span>
                             </>
                           )} */}
-                        </div>
-                      )}
-                    {/* Portfolio and Cash Balance */}
-                    <PortfolioCashBalance />
 
-                    {/* Wallet Button */}
-                    {/* <button
+                          </div>
+                        )}
+                      {/* PortfolioCashBalance oculto - reemplazado por PMTBalance con misma UI */}
+                      {/* <PortfolioCashBalance /> */}
+                      <PMTBalance />
+                      {/* Wallet Button */}
+                      {/* <button
                       onClick={() => setShowWalletUI(true)}
                       className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-[#00C805] transition-all"
                       aria-label="Wallet Settings"
@@ -822,35 +826,36 @@ export default function Navbar(props: NavbarProps = {}) {
                       <Wallet className="w-4 h-4 text-slate-400" />
                     </button> */}
 
-                    {/* Profile Button - Link for prefetch when not on profile; hidden on mobile */}
-                    <div className="hidden md:block">
-                      {isOnProfile ? (
-                        <span
-                          className="hover:ring-2 hover:ring-[#00C805] transition-all cursor-default rounded-full overflow-hidden"
-                          aria-current="page"
-                        >
-                          <UserAvatar
-                            seed={userEmail || eoaAddress || undefined}
-                            size={32}
-                            style={avatarStyle}
-                          />
-                        </span>
-                      ) : (
-                        <Link
-                          href={profileHref}
-                          onClick={() => startLoading()}
-                          className="hover:ring-2 hover:ring-[#00C805] transition-all cursor-pointer rounded-full overflow-hidden"
-                          aria-label={dict.navbar?.viewProfile ?? "View Profile"}
-                        >
-                          <UserAvatar
-                            seed={userEmail || eoaAddress || undefined}
-                            size={32}
-                            style={avatarStyle}
-                          />
-                        </Link>
-                      )}
+                      {/* Profile Button - Link for prefetch when not on profile; hidden on mobile */}
+                      <div className="hidden md:block">
+                        {isOnProfile ? (
+                          <span
+                            className="hover:ring-2 hover:ring-[#00C805] transition-all cursor-default rounded-full overflow-hidden"
+                            aria-current="page"
+                          >
+                            <UserAvatar
+                              seed={userEmail || eoaAddress || undefined}
+                              size={32}
+                              style={avatarStyle}
+                            />
+                          </span>
+                        ) : (
+                          <Link
+                            href={profileHref}
+                            onClick={() => startLoading()}
+                            className="hover:ring-2 hover:ring-[#00C805] transition-all cursor-pointer rounded-full overflow-hidden"
+                            aria-label={dict.navbar?.viewProfile ?? "View Profile"}
+                          >
+                            <UserAvatar
+                              seed={userEmail || eoaAddress || undefined}
+                              size={32}
+                              style={avatarStyle}
+                            />
+                          </Link>
+                        )}
+                      </div>
                     </div>
-                    </div>
+
                   </div>
                 </div>
               )}
@@ -930,11 +935,10 @@ export default function Navbar(props: NavbarProps = {}) {
                     startLoading();
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full block text-left text-xl font-bold transition-colors mb-4 px-4 py-3 rounded-lg cursor-pointer ${
-                    activeTradingTab === "positions"
-                      ? "bg-[#00C805]/10 text-[#00C805]"
-                      : "text-gray-900 hover:bg-slate-100 hover:text-[#00C805]"
-                  }`}
+                  className={`w-full block text-left text-xl font-bold transition-colors mb-4 px-4 py-3 rounded-lg cursor-pointer ${activeTradingTab === "positions"
+                    ? "bg-[#00C805]/10 text-[#00C805]"
+                    : "text-gray-900 hover:bg-slate-100 hover:text-[#00C805]"
+                    }`}
                 >
                   {dict.trading?.tabs?.positions ?? "My Positions"}
                 </Link>
@@ -944,11 +948,10 @@ export default function Navbar(props: NavbarProps = {}) {
                     startLoading();
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full block text-left text-xl font-bold transition-colors mb-4 px-4 py-3 rounded-lg cursor-pointer ${
-                    activeTradingTab === "orders"
-                      ? "bg-[#00C805]/10 text-[#00C805]"
-                      : "text-gray-900 hover:bg-slate-100 hover:text-[#00C805]"
-                  }`}
+                  className={`w-full block text-left text-xl font-bold transition-colors mb-4 px-4 py-3 rounded-lg cursor-pointer ${activeTradingTab === "orders"
+                    ? "bg-[#00C805]/10 text-[#00C805]"
+                    : "text-gray-900 hover:bg-slate-100 hover:text-[#00C805]"
+                    }`}
                 >
                   {dict.trading?.tabs?.orders ?? "Open Orders"}
                 </Link>
@@ -958,11 +961,10 @@ export default function Navbar(props: NavbarProps = {}) {
                     startLoading();
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full block text-left text-xl font-bold transition-colors mb-4 px-4 py-3 rounded-lg cursor-pointer ${
-                    activeTradingTab === "markets"
-                      ? "bg-[#00C805]/10 text-[#00C805]"
-                      : "text-gray-900 hover:bg-slate-100 hover:text-[#00C805]"
-                  }`}
+                  className={`w-full block text-left text-xl font-bold transition-colors mb-4 px-4 py-3 rounded-lg cursor-pointer ${activeTradingTab === "markets"
+                    ? "bg-[#00C805]/10 text-[#00C805]"
+                    : "text-gray-900 hover:bg-slate-100 hover:text-[#00C805]"
+                    }`}
                 >
                   {dict.trading?.tabs?.markets ?? "Markets"}
                 </Link>
@@ -1048,6 +1050,7 @@ export default function Navbar(props: NavbarProps = {}) {
         isOpen={showHowItWorksModal}
         onClose={() => setShowHowItWorksModal(false)}
       />
+
 
       {/* Disconnect Confirmation Modal */}
       <input
