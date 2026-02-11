@@ -13,7 +13,8 @@
     "test:playwright": "playwright test",
     "test:ui": "playwright test --ui",
     "test:formspree": "bun run test-formspree-manual.ts",
-    "test:formspree:integration": "vitest __tests__/components/Onboarding.integration.test.tsx"
+    "test:formspree:integration": "vitest __tests__/components/Onboarding.integration.test.tsx",
+    "gen:types": "npx supabase gen types --lang=typescript --project-id sqzozaaawjfqazefuxss > types/database.types.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.8.0",
@@ -25,6 +26,7 @@
     "@safe-global/api-kit": "^4.0.1",
     "@safe-global/protocol-kit": "^6.1.2",
     "@sentry/nextjs": "^10",
+    "@supabase/supabase-js": "^2.95.3",
     "@tanstack/react-query": "^5.90.20",
     "@uniswap/sdk-core": "^7.10.1",
     "@uniswap/universal-router-sdk": "^4.29.5",
@@ -69,6 +71,7 @@
     "prettier": "^3.6.2",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
+    "supabase": "^2.76.7",
     "tailwindcss": "^4",
     "typescript": "^5",
     "util": "^0.12.5",
