@@ -22,10 +22,12 @@ import AvatarStyleSelector from "@/components/Avatar/AvatarStyleSelector";
 import useAvatarStyle from "@/hooks/useAvatarStyle";
 
 const isDev = process.env.NODE_ENV === "development";
+const MAX_PMT_CLAIM = 1_000_000;
 
 export default function Profile() {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isAvatarSelectorOpen, setIsAvatarSelectorOpen] = useState(false);
+  const [pmtClaimAmount, setPmtClaimAmount] = useState(10);
 
   const [eoaPkLoading, setEoaPkLoading] = useState(false);
   const [eoaPkError, setEoaPkError] = useState<string | null>(null);
@@ -412,10 +414,34 @@ export default function Profile() {
         </h2>
         <p className="text-sm text-slate-500 mb-4">
           {locale === "es"
-            ? "Recibe 10 PMT para practicar paper trading. Los tokens son de prueba en Base Sepolia y no tienen valor real."
-            : "Receive 10 PMT to practice paper trading. Tokens are for testing on Base Sepolia and have no real value."}
+            ? "Elige cuántos PMT recibir para practicar paper trading (máx. 1.000.000). Los tokens son de prueba en Base Sepolia y no tienen valor real."
+            : "Choose how many PMT to receive for paper trading (max 1,000,000). Tokens are for testing on Base Sepolia and have no real value."}
         </p>
-        <ClaimPMTButton address={eoaAddress!} />
+        <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-end">
+          <label className="form-control flex-1 max-w-xs">
+            <span className="label-text text-slate-600 font-medium">
+              {locale === "es" ? "Cantidad PMT" : "Amount (PMT)"}
+            </span>
+            <input
+              type="number"
+              min={1}
+              max={MAX_PMT_CLAIM}
+              value={pmtClaimAmount}
+              onChange={(e) => {
+                const v = e.target.valueAsNumber;
+                if (!Number.isNaN(v)) {
+                  setPmtClaimAmount(Math.min(MAX_PMT_CLAIM, Math.max(1, Math.floor(v))));
+                }
+              }}
+              className="input input-bordered w-full"
+              placeholder="10"
+            />
+            <span className="label-text-alt text-slate-400 mt-1">
+              {locale === "es" ? "Máx. 1.000.000 PMT" : "Max 1,000,000 PMT"}
+            </span>
+          </label>
+          <ClaimPMTButton address={eoaAddress!} amount={pmtClaimAmount} />
+        </div>
       </div>
 
       {/* [DEV] EOA Private Key - only in development */}

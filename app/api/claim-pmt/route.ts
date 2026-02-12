@@ -6,11 +6,10 @@ import { supabase } from "@/lib/supabase";
 
 const PMT_CONTRACT = "0x8CC5e000199Ad0295491Fc4f6e8CC16e7108C270";
 const PMT_DECIMALS = 18;
-const CLAIM_AMOUNT = parseUnits("10", PMT_DECIMALS);
-const CLAIM_AMOUNT_NUM = 10;
 const GAS_AMOUNT = parseEther("0.001");
 const COOLDOWN_HOURS = 24;
-const DAILY_LIMIT = 100;
+const MAX_CLAIM_AMOUNT = 1_000_000;
+const DAILY_LIMIT = MAX_CLAIM_AMOUNT;
 
 const ERC20_TRANSFER_ABI = [
     {
@@ -29,15 +28,21 @@ const transport = http("https://sepolia.base.org");
 
 export async function POST(req: NextRequest) {
     try {
-        const { address } = await req.json();
+        const { address, amount: requestedAmount } = await req.json();
 
         if (!address) {
             return NextResponse.json({ error: "Address required" }, { status: 400 });
         }
 
+        const amountNum = Math.min(
+            MAX_CLAIM_AMOUNT,
+            Math.max(1, Number(requestedAmount) || 10)
+        );
+        const claimAmountWei = parseUnits(String(amountNum), PMT_DECIMALS);
+
         const addr = address.toLowerCase();
 
-        // --- Validación: límite de 100 PMT por 24h ---
+        // --- Validación: límite de 1M PMT por 24h ---
         const since = new Date(Date.now() - COOLDOWN_HOURS * 60 * 60 * 1000).toISOString();
 
         const { data: recentClaims, error: claimsError } = await supabase
@@ -59,7 +64,7 @@ export async function POST(req: NextRequest) {
             (sum, c) => sum + Number(c.amount), 0
         );
 
-        if (totalClaimed + CLAIM_AMOUNT_NUM > DAILY_LIMIT) {
+        if (totalClaimed + amountNum > DAILY_LIMIT) {
             const oldest = recentClaims?.[recentClaims.length - 1];
             const resetTime = oldest?.created_at
                 ? new Date(new Date(oldest.created_at).getTime() + COOLDOWN_HOURS * 60 * 60 * 1000)
@@ -130,7 +135,7 @@ export async function POST(req: NextRequest) {
             address: PMT_CONTRACT,
             abi: ERC20_TRANSFER_ABI,
             functionName: "transfer",
-            args: [address as `0x${string}`, CLAIM_AMOUNT],
+            args: [address as `0x${string}`, claimAmountWei],
             nonce,
         });
 
@@ -154,7 +159,7 @@ export async function POST(req: NextRequest) {
             .from("pmt_claims")
             .insert({
                 user_address: addr,
-                amount: CLAIM_AMOUNT_NUM,
+                amount: amountNum,
                 tx_hash: pmtTxHash,
             });
 
@@ -167,7 +172,8 @@ export async function POST(req: NextRequest) {
             pmtTxHash,
             ethTxHash,
             gasSkipped: ethTxHash === null,
-            totalClaimedToday: totalClaimed + CLAIM_AMOUNT_NUM,
+            amount: amountNum,
+            totalClaimedToday: totalClaimed + amountNum,
             dailyLimit: DAILY_LIMIT,
         });
     } catch (error) {

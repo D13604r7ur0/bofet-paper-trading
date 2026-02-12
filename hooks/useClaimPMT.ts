@@ -26,7 +26,7 @@ export default function useClaimPMT() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const claimPMT = async (address: string) => {
+  const claimPMT = async (address: string, amount: number = 10) => {
     setIsClaiming(true);
     setError(null);
     setTxHash(null);
@@ -35,7 +35,7 @@ export default function useClaimPMT() {
       const res = await fetch("/api/claim-pmt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address }),
+        body: JSON.stringify({ address, amount }),
       });
 
       const data = await res.json();

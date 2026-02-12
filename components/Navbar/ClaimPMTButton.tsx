@@ -7,9 +7,10 @@
 
   interface ClaimPMTButtonProps {
       address: string;
+      amount?: number;
   }
 
-  export default function ClaimPMTButton({ address }: ClaimPMTButtonProps) {
+  export default function ClaimPMTButton({ address, amount = 10 }: ClaimPMTButtonProps) {
       const { claimPMT, isClaiming, error, txHash } = useClaimPMT();
       const [isOpen, setIsOpen] = useState(false);
       const [position, setPosition] = useState({ top: 0, right: 0 });
@@ -105,7 +106,7 @@
                           {txHash && (
                               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                                   <p className="text-sm font-medium text-green-800">
-                                      10 PMT recibidos!
+                                      {amount} PMT recibidos!
                                   </p>
                               </div>
                           )}
@@ -115,7 +116,7 @@
                               type="button"
                               onClick={async () => {
                                   try {
-                                      await claimPMT(address);
+                                      await claimPMT(address, amount);
                                   } catch {
                                       // error handled in hook
                                   }
@@ -132,7 +133,7 @@
                                   ? "Enviando PMT..."
                                   : txHash
                                       ? "Recibir más PMT"
-                                      : "Recibir 10 PMT"}
+                                      : `Recibir ${amount} PMT`}
                           </button>
 
                           {/* Error */}
