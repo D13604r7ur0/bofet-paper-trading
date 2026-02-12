@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useWallet } from "@/providers/WalletContext";
+import { useCurrency } from "@/providers/CurrencyContext";
+import { useDictionary } from "@/providers/dictionary-provider";
 import usePaperPositions, { PaperPosition } from "@/hooks/usePaperPositions";
 import usePaperOrder from "@/hooks/usePaperOrder";
 import PaperPositionCard from "@/components/Trading/Positions/PaperPositionCard";
@@ -11,6 +13,8 @@ import LoadingState from "@/components/shared/LoadingState";
 
 export default function PaperUserPositions() {
   const { eoaAddress } = useWallet();
+  const { formatUsd } = useCurrency();
+  const { dict } = useDictionary();
 
   const {
     openPositions,
@@ -88,12 +92,12 @@ export default function PaperUserPositions() {
   );
 
     if (isLoading) {
-      return <LoadingState message="Cargando posiciones paper..." />;
+      return <LoadingState message="Cargando posiciones..." />;
     }
 
     if (error) {
       return (
-        <ErrorState error={error} title="Error cargando posiciones paper" />
+        <ErrorState error={error} title="Error cargando posiciones" />
       );
     }
 
@@ -102,8 +106,8 @@ export default function PaperUserPositions() {
     if (openPositions.length === 0 && closedPositions.length === 0) {
       return (
         <EmptyState
-          title="Sin Posiciones Paper"
-          message="No tienes posiciones de paper trading. Compra shares en cualquier mercado para empezar."
+          title="Sin Posiciones"
+          message="No tienes posiciones. Compra shares en cualquier mercado para empezar."
         />
       );
     }
@@ -117,20 +121,24 @@ export default function PaperUserPositions() {
             <div className="stat-value text-lg">{openPositions.length}</div>
           </div>
           <div className="stat">
-            <div className="stat-title text-xs">PMT Invertido</div>
+            <div className="stat-title text-xs">
+              {dict.trading?.positions?.totalInvested ?? "Total Invested"}
+            </div>
             <div className="stat-value text-lg text-purple-700">
-              {totalLocked.toFixed(2)}
+              {formatUsd(totalLocked)}
             </div>
           </div>
           <div className="stat">
-            <div className="stat-title text-xs">P&L Realizado</div>
+            <div className="stat-title text-xs">
+              {dict.trading?.positions?.realizedPnl ?? "Realized P&L"}
+            </div>
             <div
               className={`stat-value text-lg ${
                 totalRealizedPnl >= 0 ? "text-success" : "text-error"
               }`}
             >
               {totalRealizedPnl >= 0 ? "+" : ""}
-              {totalRealizedPnl.toFixed(2)}
+              {formatUsd(totalRealizedPnl)}
             </div>
           </div>
         </div>

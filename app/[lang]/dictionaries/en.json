@@ -317,7 +317,9 @@
       "subtitle": "Manage and track your active market positions",
       "dustPositionsHidden": "dust position(s) hidden",
       "dustThreshold": "Positions with value < $",
-      "redeemable": "Redeemable"
+      "redeemable": "Redeemable",
+      "totalInvested": "Total Invested",
+      "realizedPnl": "Realized P&L"
     },
     "orders": {
       "market": "Market",

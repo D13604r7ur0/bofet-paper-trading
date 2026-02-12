@@ -4,6 +4,7 @@
   import type { PaperPosition } from "@/hooks/usePaperPositions";
   import { useRouter } from "next/navigation";
   import { useDictionary } from "@/providers/dictionary-provider";
+  import { useCurrency } from "@/providers/CurrencyContext";
   import { ExternalLink } from "lucide-react";
 
   interface PaperPositionCardProps {
@@ -20,6 +21,7 @@
     isSelling,
   }: PaperPositionCardProps) {
     const { locale } = useDictionary();
+    const { formatUsd } = useCurrency();
     const router = useRouter();
 
     const curPrice = currentPrice ?? position.entryPrice;
@@ -67,9 +69,6 @@
                   </svg>
                   {position.outcome.toUpperCase()}
                 </div>
-                <span className="text-xs font-medium text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">
-                  Paper
-                </span>
                 {position.status !== "open" && (
                   <div className="badge badge-secondary badge-sm">
                     {position.status === "closed_sold"
@@ -118,7 +117,7 @@
                 }`}
               >
                 {cashPnl >= 0 ? "+" : ""}
-                {cashPnl.toFixed(2)} PMT
+                {formatUsd(cashPnl)}
               </div>
               <div
                 className={`stat-desc text-xs font-semibold ${
@@ -135,11 +134,11 @@
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-base-200 rounded-lg p-3">
               <div className="text-xs text-base-content/60 mb-1">Valor Actual</div>
-              <div className="text-base font-bold">{currentValue.toFixed(2)} PMT</div>
+              <div className="text-base font-bold">{formatUsd(currentValue)}</div>
             </div>
             <div className="bg-base-200 rounded-lg p-3">
               <div className="text-xs text-base-content/60 mb-1">Costo Inicial</div>
-              <div className="text-base font-bold">{initialValue.toFixed(2)} PMT</div>
+              <div className="text-base font-bold">{formatUsd(initialValue)}</div>
             </div>
           </div>
 
@@ -153,7 +152,7 @@
                 }`}
               >
                 {position.realizedPnl >= 0 ? "+" : ""}
-                {position.realizedPnl.toFixed(2)} PMT
+                {formatUsd(position.realizedPnl)}
               </div>
             </div>
           )}

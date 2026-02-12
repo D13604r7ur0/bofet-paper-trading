@@ -317,7 +317,9 @@
       "subtitle": "Gestiona y rastrea tus posiciones activas en el mercado",
       "dustPositionsHidden": "posición(es) pequeñas ocultas",
       "dustThreshold": "Posiciones con valor < $",
-      "redeemable": "Canjeable"
+      "redeemable": "Canjeable",
+      "totalInvested": "Total Invertido",
+      "realizedPnl": "P&L Realizado"
     },
     "orders": {
       "market": "Mercado",

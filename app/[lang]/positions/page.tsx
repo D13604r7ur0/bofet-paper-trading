@@ -38,7 +38,7 @@
                   {dict.trading?.positions?.authRequired ?? "Authentication Required"}
                 </h2>
                 <p className="text-base-content/70">
-                  {dict.trading?.positions?.pleaseSignIn ?? "Please sign in to view your paper trading positions."}
+                  {dict.trading?.positions?.pleaseSignIn ?? "Please sign in to view your positions."}
                 </p>
                 <div className="card-actions justify-center mt-4">
                   <button
@@ -86,7 +86,7 @@
                   {dict.trading?.positions?.myPositions ?? "My Positions"}
                 </h1>
                 <p className="text-base-content/70 mt-1">
-                  Paper Trading - Posiciones simuladas con PMT
+                  {dict.trading?.positions?.subtitle ?? "Gestiona tus posiciones en USDC"}
                 </p>
               </div>
             </div>
